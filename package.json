@@ -1,0 +1,59 @@
+{
+  "name": "validated-actions",
+  "version": "0.0.1",
+  "description": "A middleware and higher order function to enable validation of actions before they ever reach a reducer",
+  "main": "index.js",
+  "files": [
+    "lib/**/*"
+  ],
+  "scripts": {
+    "test": "jest",
+    "lint": "eslint '*/**/*.{js,ts,tsx}' --quiet --fix",
+    "precommit": "npm i && npm run lint && npm run test && npm run build",
+    "build": "tsc"
+  },
+  "husky": {
+    "hooks": {
+      "pre-commit": "npm run precommit"
+    }
+  },
+  "repository": {
+    "type": "git",
+    "url": "git@gitlab.asynchrony.com:nick.perrin/redux-validated-actions.git"
+  },
+  "keywords": [
+    "redux",
+    "action",
+    "typescript",
+    "ts",
+    "validation",
+    "typesafe",
+    "typechecking"
+  ],
+  "author": "nick.perrin@wwt.com",
+  "license": "ISC",
+  "devDependencies": {
+    "@testing-library/react": "^11.2.2",
+    "@types/jest": "^26.0.18",
+    "@types/react-redux": "^7.1.12",
+    "@typescript-eslint/eslint-plugin": "^4.9.1",
+    "@typescript-eslint/parser": "^4.9.1",
+    "ajv": "^6.12.6",
+    "eslint": "^7.15.0",
+    "eslint-config-prettier": "^7.0.0",
+    "eslint-plugin-prettier": "^3.2.0",
+    "eslint-plugin-react": "^7.21.5",
+    "fp-ts": "^2.9.1",
+    "io-ts": "^2.2.13",
+    "jest": "^26.6.3",
+    "prettier": "^2.2.1",
+    "react": "^17.0.1",
+    "react-dom": "^17.0.1",
+    "react-redux": "^7.2.2",
+    "ts-jest": "^26.4.4",
+    "typesafe-actions": "^5.1.0",
+    "typescript": "^4.1.2",
+    "yup": "^0.32.8"
+  },
+  "dependencies": {}
+}
