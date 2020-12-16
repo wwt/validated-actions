@@ -1,5 +1,7 @@
 import { waitFor } from '@testing-library/react';
+import { AnyFunc } from '../src/functionTypes';
 import {
+  createReduxTestStoreHomeRolled,
   createReduxTestStoreTypeSafeActions,
   generateTestErrorType,
   generateTestType,
@@ -13,6 +15,10 @@ describe('createValidateActionsMiddleware', () => {
       description: 'with typesafe-actions',
       createReduxTestStore: createReduxTestStoreTypeSafeActions,
     },
+    {
+      description: 'with home rolled action creator',
+      createReduxTestStore: createReduxTestStoreHomeRolled,
+    },
   ].forEach(({ description, createReduxTestStore }) => {
     describe(description, () => {
       it('valid (validation function returns undefined) the action is reduced as the original would have been', async () => {
@@ -21,7 +27,7 @@ describe('createValidateActionsMiddleware', () => {
         const action = actionCreator(expectedPayload);
         mockValidation.mockResolvedValue(void 0);
 
-        store.dispatch(action);
+        (store.dispatch as AnyFunc)(action);
 
         await waitFor(() =>
           expect(store.getState().success).toEqual(expectedPayload),
@@ -34,7 +40,7 @@ describe('createValidateActionsMiddleware', () => {
         const action = actionCreator(generateTestType());
         mockValidation.mockResolvedValue(expectedPayload);
 
-        store.dispatch(action);
+        (store.dispatch as AnyFunc)(action);
 
         await waitFor(() =>
           expect(store.getState().success).toEqual(expectedPayload),
@@ -49,7 +55,7 @@ describe('createValidateActionsMiddleware', () => {
           throw expectedPayload;
         });
 
-        store.dispatch(action);
+        (store.dispatch as AnyFunc)(action);
 
         await waitFor(() =>
           expect(store.getState().failure).toEqual(expectedPayload),
