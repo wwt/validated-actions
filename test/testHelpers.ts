@@ -68,3 +68,36 @@ export const createReduxTestStoreTypeSafeActions = (
   const store = createStore(reducer, undefined, middlewareEnhancer);
   return { actionCreator, store };
 };
+
+export const createReduxTestStoreHomeRolled = (
+  validationFunction: ValidationFunction<TestType>,
+) => {
+  const originalActionCreator = (payload: TestType) => ({
+    type: TestActions.testAction,
+    payload,
+  });
+
+  const validatableActionCreator = makeValidatable(originalActionCreator)<
+    TestErrorType,
+    typeof TestActions.testActionValidationFailure
+  >(TestActions.testActionValidationFailure, validationFunction);
+
+  type TestActionTypesHomeRolled =
+    | ReturnType<typeof validatableActionCreator>
+    | ReturnType<typeof validatableActionCreator.onValidationFailureAction>;
+
+  const reducer = (state = initialState, action: TestActionTypesHomeRolled) => {
+    switch (action.type) {
+      case TestActions.testAction:
+        return { ...state, success: action.payload };
+      case TestActions.testActionValidationFailure:
+        return { ...state, failure: action.payload as TestErrorType };
+      default:
+        return state;
+    }
+  };
+  const middlewareEnhancer = applyMiddleware(createValidateActionsMiddleware());
+
+  const store = createStore(reducer, undefined, middlewareEnhancer);
+  return { actionCreator: validatableActionCreator, store };
+};
