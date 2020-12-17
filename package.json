@@ -3,14 +3,14 @@
   "version": "0.0.1",
   "description": "A middleware and higher order function to enable validation of actions before they ever reach a reducer",
   "main": "lib/index.js",
-  "types": "lib/index.d.js",
+  "types": "lib/index.d.ts",
   "files": [
     "lib/**/*"
   ],
   "scripts": {
     "test": "jest",
     "lint": "eslint '*/**/*.{js,ts,tsx}' --quiet --fix",
-    "precommit": "npm i && npm run lint && npm run test && npm run build",
+    "prepublish": "npm i && npm run lint && npm run test && npm run build",
     "build": "tsc"
   },
   "husky": {
