@@ -4,18 +4,18 @@ A middleware and higher order function to enable validation of actions before th
 
 The purpose of this package is to allow TypeScript user the ability to verify that data from external sources (web requests, flat files, etc.) have the expected shape. However the package itself does not care what the validation function actually does or if you are using the validatable actions in places other than the boundries. This package is influenced heavily by `typesafe-actions` and thus functions like `getType` and types like `ActionType<typeof action>` can work as they would with `typesafe-actions`'s action creators providing yout specify the type of the error type literal in the below examples.
 
-Currently there isn't support for using `@redux/toolkit` with TypeScript. However it can be used with JavaScript realitively easily
+Currently there isn't support for using `@redux/toolkit` with TypeScript. However, it can be used with JavaScript realitively easily
 
 ### Install
 
 ```bash
-$ npm install validated-actions --save
+$ npm install @wwt-as/validated-actions --save
 ```
 
 ### Install createValidateActionsMiddleware
 
 ```typescript
-import createValidateActionsMiddleware from '../src/createValidateActionsMiddleware';
+import { createValidateActionsMiddleware } from '@wwt-as/validated-actions';
 
 const middlewareEnhancer = applyMiddleware(createValidateActionsMiddleware());
 
@@ -23,10 +23,10 @@ const store = createStore(reducer, undefined, middlewareEnhancer);
 return { actionCreator: validatableActionCreator, store };
 ```
 
-### Usage
+### makeValidateable
 
 ```typescript
-import { makeValidatable } from 'validate-actions';
+import { makeValidatable } from '@wwt-as/validated-actions';
 
 const validateableActionCreator = makeValidateable(actionCreator)<
   TypeOfErrorResponse,
@@ -34,7 +34,7 @@ const validateableActionCreator = makeValidateable(actionCreator)<
 >(errorTypeLiteral, validationFunction);
 ```
 
-#### Notes on usage
+#### Notes on makeValidateable
 
 In order to leverage the typing and avoid pain when trying to reduce the actions, a strongly typed action creator is required.
 
@@ -95,7 +95,7 @@ const reducer = (state = initialState, action: TestActionTypes) => {
 };
 ```
 
-##### Example with @redux/toolit (JavaAcript)
+##### Example with @redux/toolit (JavaScript)
 
 ```javascript
 const actionCreator = makeValidatable(createAction(TestActions.testAction))(
