@@ -1,6 +1,6 @@
 {
   "name": "@wwt-as/validated-actions",
-  "version": "0.0.3",
+  "version": "0.0.4",
   "description": "A middleware and higher order function to enable validation of actions before they ever reach a reducer",
   "main": "lib/index.js",
   "types": "lib/index.d.ts",
@@ -10,7 +10,7 @@
   "scripts": {
     "test": "jest",
     "lint": "eslint '*/**/*.{js,ts,tsx}' --quiet --fix",
-    "prepublish": "npm i && npm run lint && npm run test && npm run build",
+    "prepublishOnly": "npm i && npm run lint && npm run test && npm run build",
     "build": "tsc"
   },
   "husky": {
