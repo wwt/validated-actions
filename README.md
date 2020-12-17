@@ -1,3 +1,7 @@
+![linting](https://github.com/wwt/validated-actions/workflows/linting/badge.svg)
+![tests](https://github.com/wwt/validated-actions/workflows/tests/badge.svg)
+![build](https://github.com/wwt/validated-actions/workflows/build/badge.svg)
+
 # validated-actions
 
 A middleware and higher order function to enable validation of actions before they ever reach a reducer
