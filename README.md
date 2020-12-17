@@ -15,7 +15,7 @@ $ npm install validated-actions --save
 ### Install createValidateActionsMiddleware
 
 ```typescript
-import createValidateActionsMiddleware from '../src/createValidateActionsMiddleware';
+import { createValidateActionsMiddleware } from '@wwt-as/validated-actions';
 
 const middlewareEnhancer = applyMiddleware(createValidateActionsMiddleware());
 
@@ -23,10 +23,10 @@ const store = createStore(reducer, undefined, middlewareEnhancer);
 return { actionCreator: validatableActionCreator, store };
 ```
 
-### Usage
+### makeValidateable
 
 ```typescript
-import { makeValidatable } from 'validate-actions';
+import { makeValidatable } from '@wwt-as/validated-actions';
 
 const validateableActionCreator = makeValidateable(actionCreator)<
   TypeOfErrorResponse,
@@ -34,7 +34,7 @@ const validateableActionCreator = makeValidateable(actionCreator)<
 >(errorTypeLiteral, validationFunction);
 ```
 
-#### Notes on usage
+#### Notes on makeValidateable
 
 In order to leverage the typing and avoid pain when trying to reduce the actions, a strongly typed action creator is required.
 
