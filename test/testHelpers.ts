@@ -4,6 +4,7 @@ import { ValidationFunction } from '../src/functionTypes';
 import { makeValidatable } from '../src/makeValidatable';
 import { createStore, applyMiddleware } from 'redux';
 import createValidateActionsMiddleware from '../src/createValidateActionsMiddleware';
+import * as ReduxToolkit from '@reduxjs/toolkit';
 
 const chance = new Chance();
 
@@ -41,10 +42,11 @@ export const createReduxTestStoreTypeSafeActions = (
 ) => {
   const actionCreator = makeValidatable(
     createAction(TestActions.testAction)<TestType>(),
-  )<TestErrorType, typeof TestActions.testActionValidationFailure>(
-    TestActions.testActionValidationFailure,
+  )(
     validationFunction,
+    createAction(TestActions.testActionValidationFailure)<TestErrorType>(),
   );
+
   type TestActionTypes =
     | ActionType<typeof actionCreator>
     | ActionType<typeof actionCreator.onValidationFailureAction>;
@@ -69,18 +71,47 @@ export const createReduxTestStoreTypeSafeActions = (
   return { actionCreator, store };
 };
 
+export const createReduxTestStoreReduxToolkit = (
+  validationFunction: ValidationFunction<TestType>,
+) => {
+  const actionCreator = makeValidatable(
+    ReduxToolkit.createAction<TestType>(TestActions.testAction),
+  )(
+    validationFunction,
+    ReduxToolkit.createAction<TestErrorType>(
+      TestActions.testActionValidationFailure,
+    ),
+  );
+
+  const reducer = ReduxToolkit.createReducer({} as TestStateType, (builder) => {
+    builder.addCase(actionCreator, (state, action) => ({
+      ...state,
+      success: action.payload,
+    }));
+    builder.addCase(
+      actionCreator.onValidationFailureAction,
+      (state, action) => ({
+        ...state,
+        failure: action.payload,
+      }),
+    );
+  });
+  const middlewareEnhancer = applyMiddleware(createValidateActionsMiddleware());
+
+  const store = createStore(reducer, undefined, middlewareEnhancer);
+  return { actionCreator, store };
+};
+
 export const createReduxTestStoreHomeRolled = (
   validationFunction: ValidationFunction<TestType>,
 ) => {
-  const originalActionCreator = (payload: TestType) => ({
+  const validatableActionCreator = makeValidatable((payload: TestType) => ({
     type: TestActions.testAction,
     payload,
-  });
-
-  const validatableActionCreator = makeValidatable(originalActionCreator)<
-    TestErrorType,
-    typeof TestActions.testActionValidationFailure
-  >(TestActions.testActionValidationFailure, validationFunction);
+  }))(validationFunction, (payload: TestErrorType) => ({
+    type: TestActions.testActionValidationFailure,
+    payload,
+  }));
 
   type TestActionTypesHomeRolled =
     | ReturnType<typeof validatableActionCreator>
@@ -91,7 +122,7 @@ export const createReduxTestStoreHomeRolled = (
       case TestActions.testAction:
         return { ...state, success: action.payload };
       case TestActions.testActionValidationFailure:
-        return { ...state, failure: action.payload as TestErrorType };
+        return { ...state, failure: action.payload };
       default:
         return state;
     }

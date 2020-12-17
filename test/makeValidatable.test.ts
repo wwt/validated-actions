@@ -1,4 +1,4 @@
-import { createCustomAction } from 'typesafe-actions';
+import { createAction, createCustomAction, getType } from 'typesafe-actions';
 import { makeValidatable } from '../src/makeValidatable';
 import { VALIDATE } from '../src/constants';
 import { ValidationFunction } from '../src/functionTypes';
@@ -25,10 +25,10 @@ const setupAlwaysPass = () => {
     ),
     { fooBarProp: () => 'foobar' },
   );
-  const validatableActionCreator = makeValidatable(originalActionCreator)<
-    TestErrorType,
-    typeof TestActions.testActionValidationFailure
-  >(TestActions.testActionValidationFailure, () => void 0);
+  const validatableActionCreator = makeValidatable(originalActionCreator)(
+    () => void 0,
+    createAction(TestActions.testActionValidationFailure)<TestErrorType>(),
+  );
   return { originalActionCreator, validatableActionCreator };
 };
 
@@ -44,10 +44,10 @@ const setup = (validationFunction: ValidationFunction<TestType>) => {
     ),
     { fooBarProp: () => 'foobar' },
   );
-  const validatableActionCreator = makeValidatable(originalActionCreator)<
-    TestErrorType,
-    typeof TestActions.testActionValidationFailure
-  >(TestActions.testActionValidationFailure, validationFunction);
+  const validatableActionCreator = makeValidatable(originalActionCreator)(
+    validationFunction,
+    createAction(TestActions.testActionValidationFailure)<TestErrorType>(),
+  );
   return { originalActionCreator, validatableActionCreator };
 };
 
@@ -94,10 +94,7 @@ describe('makeValidateable', () => {
       const { validatableActionCreator } = setupAlwaysPass();
 
       expect(
-        validatableActionCreator.onValidationFailureAction.getType(),
-      ).toEqual(TestActions.testActionValidationFailure);
-      expect(
-        validatableActionCreator.onValidationFailureAction.getString(),
+        getType(validatableActionCreator.onValidationFailureAction),
       ).toEqual(TestActions.testActionValidationFailure);
     });
 

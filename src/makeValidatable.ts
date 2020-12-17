@@ -2,7 +2,6 @@ import { Action } from './actionTypes';
 import { VALIDATE } from './constants';
 import { createValidation } from './createValidation';
 import { ValidationFunction } from './functionTypes';
-import { getTypeProperties } from './getTypeProperties';
 import { withProperties } from './withProperties';
 
 type ActionCreator<
@@ -26,17 +25,22 @@ export const makeValidatable = <
     TArgs
   > &
     TOriginalActionCreatorMetadata,
-) => <TValidationError, TFailureType extends string>(
-  failureType: TFailureType,
+) => <
+  TFailureType extends string,
+  TValidationError extends unknown,
+  TCustomFailureActionProps extends Record<string, unknown>,
+  TFailureArgs extends unknown[],
+  TFailureActionCreatorMetadata
+>(
   validationFunction: ValidationFunction<TPayload>,
+  onValidationFailureAction: ActionCreator<
+    TFailureType,
+    TValidationError,
+    TCustomFailureActionProps,
+    TFailureArgs
+  > &
+    TFailureActionCreatorMetadata,
 ) => {
-  const onValidationFailureAction = withProperties(
-    getTypeProperties(failureType),
-  )((validationFailure: TValidationError) => ({
-    type: failureType,
-    payload: validationFailure,
-  }));
-
   return withProperties({
     ...originalActionCreator,
     onValidationFailureAction,

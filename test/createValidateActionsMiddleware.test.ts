@@ -2,6 +2,7 @@ import { waitFor } from '@testing-library/react';
 import { AnyFunc } from '../src/functionTypes';
 import {
   createReduxTestStoreHomeRolled,
+  createReduxTestStoreReduxToolkit,
   createReduxTestStoreTypeSafeActions,
   generateTestErrorType,
   generateTestType,
@@ -18,6 +19,10 @@ describe('createValidateActionsMiddleware', () => {
     {
       description: 'with home rolled action creator',
       createReduxTestStore: createReduxTestStoreHomeRolled,
+    },
+    {
+      description: 'with home rolled action creator',
+      createReduxTestStore: createReduxTestStoreReduxToolkit,
     },
   ].forEach(({ description, createReduxTestStore }) => {
     describe(description, () => {

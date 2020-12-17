@@ -8,8 +8,6 @@ A middleware and higher order function to enable validation of actions before th
 
 The purpose of this package is to allow TypeScript user the ability to verify that data from external sources (web requests, flat files, etc.) have the expected shape. However the package itself does not care what the validation function actually does or if you are using the validatable actions in places other than the boundries. This package is influenced heavily by `typesafe-actions` and thus functions like `getType` and types like `ActionType<typeof action>` can work as they would with `typesafe-actions`'s action creators providing yout specify the type of the error type literal in the below examples.
 
-Currently there isn't support for using `@redux/toolkit` with TypeScript. However, it can be used with JavaScript realitively easily
-
 ### Install
 
 ```bash
@@ -32,10 +30,10 @@ return { actionCreator: validatableActionCreator, store };
 ```typescript
 import { makeValidatable } from '@wwt-as/validated-actions';
 
-const validateableActionCreator = makeValidateable(actionCreator)<
-  TypeOfErrorResponse,
-  typeof errorTypeLiteral
->(errorTypeLiteral, validationFunction);
+const validateableActionCreator = makeValidateable(actionCreator)(
+  validationFunction,
+  validationFailedActionCreator,
+);
 ```
 
 #### Notes on makeValidateable
@@ -47,10 +45,11 @@ In order to leverage the typing and avoid pain when trying to reduce the actions
 ```typescript
 const actionCreator = makeValidatable(
   createAction(TestActions.testAction)<TestType>(),
-)<TestErrorType, typeof TestActions.testActionValidationFailure>(
-  TestActions.testActionValidationFailure,
+)(
   validationFunction,
+  createAction(TestActions.testActionValidationFailure)<TestErrorType>(),
 );
+
 type TestActionTypes =
   | ActionType<typeof actionCreator>
   | ActionType<typeof actionCreator.onValidationFailureAction>;
@@ -73,53 +72,53 @@ const reducer = (
 ##### Example with hand rolled action creator
 
 ```typescript
-const originalActionCreator = (payload: TestType) => ({
+const validatableActionCreator = makeValidatable((payload: TestType) => ({
   type: TestActions.testAction,
   payload,
-});
+}))(validationFunction, (payload: TestErrorType) => ({
+  type: TestActions.testActionValidationFailure,
+  payload,
+}));
 
-const validatableActionCreator = makeValidatable(originalActionCreator)<
-  TestErrorType,
-  typeof TestActions.testActionValidationFailure
->(TestActions.testActionValidationFailure, validationFunction);
-
-type TestActionTypes =
+type TestActionTypesHomeRolled =
   | ReturnType<typeof validatableActionCreator>
   | ReturnType<typeof validatableActionCreator.onValidationFailureAction>;
 
-const reducer = (state = initialState, action: TestActionTypes) => {
+const reducer = (state = initialState, action: TestActionTypesHomeRolled) => {
   switch (action.type) {
     case TestActions.testAction:
       return { ...state, success: action.payload };
     case TestActions.testActionValidationFailure:
-      return { ...state, failure: action.payload as TestErrorType };
+      return { ...state, failure: action.payload };
     default:
       return state;
   }
 };
 ```
 
-##### Example with @redux/toolit (JavaScript)
+##### Example with @redux/toolit
 
-```javascript
-const actionCreator = makeValidatable(createAction(TestActions.testAction))(
-  TestActions.testActionValidationFailure,
+```typescript
+const actionCreator = makeValidatable(
+  ReduxToolkit.createAction<TestType>(TestActions.testAction),
+)(
   validationFunction,
+  ReduxToolkit.createAction<TestErrorType>(
+    TestActions.testActionValidationFailure,
+  ),
 );
 
-const reducer = createReducer(
-  {},
-  {
-    [TestActions.testAction]: (state, action) => ({
-      ...state,
-      success: action.payload,
-    }),
-    [TestActions.testActionValidationFailure]: (state, action) => ({
-      ...state,
-      failure: action.payload,
-    }),
-  },
-);
+// must use the builder syntax for type inference
+const reducer = ReduxToolkit.createReducer({} as TestStateType, (builder) => {
+  builder.addCase(actionCreator, (state, action) => ({
+    ...state,
+    success: action.payload,
+  }));
+  builder.addCase(actionCreator.onValidationFailureAction, (state, action) => ({
+    ...state,
+    failure: action.payload,
+  }));
+});
 ```
 
 ### Validation Function
