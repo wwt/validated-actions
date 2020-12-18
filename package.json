@@ -1,6 +1,6 @@
 {
   "name": "@wwt-as/validated-actions",
-  "version": "0.1.1",
+  "version": "1.0.0",
   "description": "A middleware and higher order function to enable validation of actions before they ever reach a reducer",
   "main": "lib/index.js",
   "types": "lib/index.d.ts",
