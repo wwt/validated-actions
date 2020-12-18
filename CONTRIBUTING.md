@@ -45,6 +45,7 @@ Please open an issue with a proposal for a new feature or refactoring before sta
 - Open a new issue in the [Issue tracker](https://github.com/wwt/validated-actions/issues).
 - Fork the repo.
 - Create a new feature branch based off the `master` branch. name the branch va-<issue number>
+- Make sure changes are supported by tests.
 - Make sure all tests pass and there are no linting errors.
 - Submit a pull request, referencing any issues it addresses.
 
