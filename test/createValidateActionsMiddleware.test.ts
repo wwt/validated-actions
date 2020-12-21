@@ -1,16 +1,24 @@
 import { waitFor } from '@testing-library/react';
+import { VALIDATE } from '../src/constants';
 import { AnyFunc } from '../src/functionTypes';
 import {
   createReduxTestStoreHomeRolled,
   createReduxTestStoreReduxToolkit,
   createReduxTestStoreTypeSafeActions,
+  createReduxTestStoreWithDispatchAudit,
   generateTestErrorType,
   generateTestType,
+  TestActions,
 } from './testHelpers';
 
 const mockValidation = jest.fn();
+const dispatchAuditor = jest.fn();
 
 describe('createValidateActionsMiddleware', () => {
+  beforeEach(() => {
+    jest.resetAllMocks();
+  });
+
   [
     {
       description: 'with typesafe-actions',
@@ -21,7 +29,7 @@ describe('createValidateActionsMiddleware', () => {
       createReduxTestStore: createReduxTestStoreHomeRolled,
     },
     {
-      description: 'with home rolled action creator',
+      description: 'with @redux/toolkit',
       createReduxTestStore: createReduxTestStoreReduxToolkit,
     },
   ].forEach(({ description, createReduxTestStore }) => {
@@ -67,5 +75,59 @@ describe('createValidateActionsMiddleware', () => {
         );
       });
     });
+  });
+
+  it('continues through the middleware chain when valid ', async () => {
+    const { store, actionCreator } = createReduxTestStoreWithDispatchAudit(
+      mockValidation,
+      dispatchAuditor,
+    );
+    const expectedActionPayload = generateTestType();
+    const action = actionCreator(expectedActionPayload);
+    mockValidation.mockResolvedValue(void 0);
+
+    store.dispatch(action);
+
+    await waitFor(() => expect(dispatchAuditor).toHaveBeenCalledTimes(1));
+
+    expect(dispatchAuditor).toHaveBeenCalledWith(
+      expect.objectContaining({
+        type: TestActions.testAction,
+        payload: expectedActionPayload,
+        [VALIDATE]: expect.any(Function),
+      }),
+    );
+  });
+
+  it('restarts the middleware chain when invalid ', async () => {
+    const dispatchAuditor = jest.fn();
+    const { store, actionCreator } = createReduxTestStoreWithDispatchAudit(
+      mockValidation,
+      dispatchAuditor,
+    );
+    const expectedActionPayload = generateTestType();
+    const expectedErrorPayload = generateTestErrorType();
+    const action = actionCreator(expectedActionPayload);
+    mockValidation.mockImplementation(async () => {
+      throw expectedErrorPayload;
+    });
+
+    store.dispatch(action);
+
+    await waitFor(() => expect(dispatchAuditor).toHaveBeenCalledTimes(2));
+
+    expect(dispatchAuditor).toHaveBeenCalledWith(
+      expect.objectContaining({
+        type: TestActions.testAction,
+        payload: expectedActionPayload,
+        [VALIDATE]: expect.any(Function),
+      }),
+    );
+    expect(dispatchAuditor).toHaveBeenCalledWith(
+      expect.objectContaining({
+        type: TestActions.testActionValidationFailure,
+        payload: expectedErrorPayload,
+      }),
+    );
   });
 });

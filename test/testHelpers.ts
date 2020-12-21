@@ -2,7 +2,7 @@ import { Chance } from 'chance';
 import { ActionType, createAction, getType } from 'typesafe-actions';
 import { ValidationFunction } from '../src/functionTypes';
 import { makeValidatable } from '../src/makeValidatable';
-import { createStore, applyMiddleware } from 'redux';
+import { createStore, applyMiddleware, Middleware } from 'redux';
 import createValidateActionsMiddleware from '../src/createValidateActionsMiddleware';
 import * as ReduxToolkit from '@reduxjs/toolkit';
 
@@ -131,4 +131,47 @@ export const createReduxTestStoreHomeRolled = (
 
   const store = createStore(reducer, undefined, middlewareEnhancer);
   return { actionCreator: validatableActionCreator, store };
+};
+
+export const createReduxTestStoreWithDispatchAudit = (
+  validationFunction: ValidationFunction<TestType>,
+  dispatchAuditor: jest.Mock,
+) => {
+  const actionCreator = makeValidatable(
+    createAction(TestActions.testAction)<TestType>(),
+  )(
+    validationFunction,
+    createAction(TestActions.testActionValidationFailure)<TestErrorType>(),
+  );
+
+  type TestActionTypes =
+    | ActionType<typeof actionCreator>
+    | ActionType<typeof actionCreator.onValidationFailureAction>;
+
+  const reducer = (
+    state = initialState,
+    action: TestActionTypes,
+  ): TestStateType => {
+    switch (action.type) {
+      case getType(actionCreator):
+        return { ...state, success: action.payload };
+      case getType(actionCreator.onValidationFailureAction):
+        return { ...state, failure: action.payload };
+      default:
+        return state;
+    }
+  };
+
+  const dispatchAudit = (): Middleware => () => (next) => (action) => {
+    dispatchAuditor(action);
+    return next(action);
+  };
+
+  const middlewareEnhancer = applyMiddleware(
+    dispatchAudit(),
+    createValidateActionsMiddleware(),
+  );
+
+  const store = createStore(reducer, undefined, middlewareEnhancer);
+  return { actionCreator, store };
 };
