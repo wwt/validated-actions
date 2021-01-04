@@ -1,6 +1,6 @@
 {
   "name": "@wwt-as/validated-actions",
-  "version": "1.1.0",
+  "version": "1.1.1",
   "description": "A middleware and higher order function to enable validation of actions before they ever reach a reducer",
   "main": "lib/index.js",
   "types": "lib/index.d.ts",
@@ -20,7 +20,8 @@
   },
   "repository": {
     "type": "git",
-    "url": "git@gitlab.asynchrony.com:nick.perrin/redux-validated-actions.git"
+    "url": "https://github.com/wwt/validated-actions",
+    "email": "nick.perrin@wwt.com"
   },
   "keywords": [
     "redux",
@@ -32,7 +33,7 @@
     "typechecking"
   ],
   "author": "nick.perrin@wwt.com",
-  "license": "ISC",
+  "license": "Apache-2.0",
   "devDependencies": {
     "@reduxjs/toolkit": "^1.5.0",
     "@testing-library/react": "^11.2.2",
