@@ -4,6 +4,8 @@
 
 # @wwt-as/validated-actions
 
+**This project is no longer being actively maintained.**
+
 A middleware and higher order function to enable validation of actions before they ever reach a reducer.
 
 The purpose of this package is to allow TypeScript user the ability to verify that data from external sources (web requests, flat files, etc.) have the expected shape. However the package itself does not care what the validation function actually does or if you are using the validatable actions in places other than the boundries.
